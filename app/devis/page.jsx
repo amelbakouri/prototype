@@ -231,7 +231,7 @@ export default function DevisPage() {
           onSubmit={(e) => {
             e.preventDefault();
             const clientInput = e.currentTarget.elements.clientInput;
-            fetch(`/api/clients?search=${clientInput.value}`)
+            fetch(`/api/client?search=${clientInput.value}`)
               .then((res) => res.json())
               .then((clients) => {
                 if (clients.length > 0) {
