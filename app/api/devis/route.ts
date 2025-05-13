@@ -1,11 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import mysql from 'mysql2/promise';
 import type { ResultSetHeader } from 'mysql2';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route'; 
 
 export async function POST(req: NextRequest) {
   try {
-    const body = await req.json();
+    // 0. Récupération de la session utilisateur
+    const session = await getServerSession(authOptions);
+    if (!session || !session.user?.id) {
+      return NextResponse.json({ message: 'Utilisateur non authentifié' }, { status: 401 });
+    }
 
+    const userId = session.user.id;
+
+    const body = await req.json();
     const {
       typeDoc,
       client,
@@ -24,31 +33,41 @@ export async function POST(req: NextRequest) {
       database: process.env.DB_NAME,
     });
 
-    // 1. Insertion du client
-    const [clientResult] = await connection.execute<ResultSetHeader>(
-      `
-      INSERT INTO client (
-        nom, prenom, societe, adresse,
-        code_postal, ville, siret, email, tel
-      )
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-      `,
-      [
-        client.nom,
-        client.prenom,
-        client.societe,
-        client.adresse,
-        client.codePostal,
-        client.ville,
-        client.siret,
-        client.email,
-        client.tel,
-      ]
+    // Vérifier si le client existe
+    const [existingClientRows] = await connection.execute<any[]>(
+      `SELECT id FROM client WHERE email = ? OR siret = ?`,
+      [client.email, client.siret]
     );
 
-    const clientId = clientResult.insertId;
+    let clientId: number;
 
-    // 2. Insertion du devis/facture
+    if (existingClientRows.length > 0) {
+      clientId = existingClientRows[0].id;
+    } else {
+      const [clientResult] = await connection.execute<ResultSetHeader>(
+        `
+        INSERT INTO client (
+          nom, prenom, societe, adresse,
+          code_postal, ville, siret, email, tel
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        [
+          client.nom,
+          client.prenom,
+          client.societe,
+          client.adresse,
+          client.codePostal,
+          client.ville,
+          client.siret,
+          client.email,
+          client.tel,
+        ]
+      );
+      clientId = clientResult.insertId;
+    }
+
+    // Insertion du devis/facture avec l'ID de l'utilisateur connecté
     const [devisResult] = await connection.execute<ResultSetHeader>(
       `
       INSERT INTO devis_facture (
@@ -62,7 +81,7 @@ export async function POST(req: NextRequest) {
       [
         typeDoc,
         clientId,
-        1, // ID utilisateur en dur pour l'instant
+        userId, // depuis la session
         dates.dateDevis || new Date(),
         dates.validite || null,
         dates.dateFacturation || null,
@@ -77,7 +96,7 @@ export async function POST(req: NextRequest) {
 
     const devisId = devisResult.insertId;
 
-    // 3. Insertion des lignes de prestation
+    // Insertion des lignes de prestation
     if (Array.isArray(prestations)) {
       for (const prestation of prestations) {
         await connection.execute<ResultSetHeader>(

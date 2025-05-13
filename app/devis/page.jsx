@@ -6,6 +6,8 @@ import ClientForm from "@/components/ClientForm";
 import DateSection from "@/components/DateSection";
 import PrestationsSection from "@/components/PrestationsSection";
 import DocumentActions from "@/components/DocumentActions";
+import societe from "@/components/societeInfo";
+
 
 export default function DevisPage() {
   const {
@@ -26,15 +28,6 @@ export default function DevisPage() {
     totalTTC,
   } = useDevisState();
 
-  const societe = {
-    nom: "Pledge & Grow",
-    adresse: "4 B RUE ALFRED NOBEL",
-    codePostal: "77420",
-    ville: "CHAMPS-SUR-MARNE",
-    siret: "93157766200014",
-    tva: "FR38931577662",
-    tel: "01 23 45 67 89",
-  };
 
   const handleSave = async () => {
     const response = await fetch("/api/devis", {
@@ -90,7 +83,7 @@ export default function DevisPage() {
           onGeneratePDF={() =>
             generatePDF({
               typeDoc,
-              societe,
+              societe: societe,
               client,
               dates,
               prestations,
