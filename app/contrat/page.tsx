@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { generateContratPDF } from "@/components/generateContratPDF";
 
 export default function ContratPage() {
   const router = useRouter();
@@ -184,9 +185,17 @@ export default function ContratPage() {
             <button
               type="submit"
               disabled={loading}
-              className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2.5 rounded-lg shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-green-600 hover:bg-green-700 text-white font-medium px-6 py-2.5 rounded-lg shadow-md transition disabled:opacity-50 disabled:cursor-not-allowed me-3"
             >
               {loading ? "Enregistrement..." : "Enregistrer"}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => generateContratPDF(form)}
+              className="ml-4 bg-blue-600 hover:bg-blue-700 text-white font-medium px-6 py-2.5 rounded-lg shadow-md transition"
+            >
+              Exporter en PDF
             </button>
           </div>
         </form>

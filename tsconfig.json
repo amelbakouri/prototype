@@ -32,7 +32,7 @@
     ".next/types/**/*.ts",
     "**/*.ts",
     "**/*.tsx"
-, "app/api/auth/[...nextauth]/route.jsx"  ],
+, "app/api/auth/[...nextauth]/route.jsx", "components/generateContratPDF.js"  ],
   "exclude": [
     "node_modules"
   ]
