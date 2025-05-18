@@ -1,11 +1,11 @@
 "use client";
 
-import useDevisState from "@/components/useDevisState";
-import { generatePDF } from "@/components/generatePDF";
+import useDevisState from "@/components/devis/useDevisState";
+import { generatePDF } from "@/components/devis/generatePDF";
 import ClientForm from "@/components/ClientForm";
-import DateSection from "@/components/DateSection";
-import PrestationsSection from "@/components/PrestationsSection";
-import DocumentActions from "@/components/DocumentActions";
+import DateSection from "@/components/devis/DateSection";
+import PrestationsSection from "@/components/devis/PrestationsSection";
+import DocumentActions from "@/components/devis/DocumentActions";
 import societe from "@/components/societeInfo";
 
 
